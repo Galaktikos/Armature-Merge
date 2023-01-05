@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
 using UnityEngine.Animations;
-using System.Linq;
+using UnityEngine.XR;
 
 namespace Galaktikos.ArmatureMerge
 {
@@ -51,6 +51,8 @@ namespace Galaktikos.ArmatureMerge
 
             if (GUILayout.Button("Merge"))
             {
+                Debug.Log(GetPathToArmature(MergeArmatureRoot, MainArmatureRoot));
+
                 // Input Validation
                 if (MainArmatureRoot == null || MergeArmatureRoot == null)
                 {
@@ -86,7 +88,7 @@ namespace Galaktikos.ArmatureMerge
                 {
                     Transform foundRoot = null;
                     if (mergeMesh.rootBone != null)
-                        foundRoot = IgnoreBonePath ? FindChildRecursive(MainArmatureRoot, mergeMesh.rootBone.name) : MainArmatureRoot.Find(mergeMesh.rootBone.GetHierarchyPath(MergeArmatureRoot));
+                        foundRoot = IgnoreBonePath ? FindChildRecursive(MainArmatureRoot, mergeMesh.rootBone.name) : MainArmatureRoot.Find(GetPathToArmature(mergeMesh.rootBone, MergeArmatureRoot));
 
                     mergeMesh.rootBone = foundRoot == null ? MainArmatureRoot : foundRoot;
 
@@ -94,7 +96,7 @@ namespace Galaktikos.ArmatureMerge
                     for (int boneIndex = 0; boneIndex < mergeBones.Length; boneIndex++)
                     {
                         Transform bone = mergeMesh.bones[boneIndex];
-                        Transform found = (IgnoreBonePath) ? FindChildRecursive(MainArmatureRoot, bone.name) : MainArmatureRoot.Find(bone.GetHierarchyPath(MergeArmatureRoot));
+                        Transform found = (IgnoreBonePath) ? FindChildRecursive(MainArmatureRoot, bone.name) : MainArmatureRoot.Find(GetPathToArmature(bone, MergeArmatureRoot));
 
                         if (found == null)
                         {
@@ -179,6 +181,18 @@ namespace Galaktikos.ArmatureMerge
             }
 
             return null;
+        }
+
+        private static string GetPathToArmature(Transform bone, Transform armature)
+        {
+            if (bone.parent == null)
+                return null;
+
+            if (bone.parent == armature)
+                return bone.name;
+
+            string path = GetPathToArmature(bone.parent, armature);
+            return path == null ? null : $"{path}/{bone.name}";
         }
 
         private KeyValuePair<Transform, Transform>? FindMatchedParentRecursive(Transform bone, Dictionary<Transform, Transform> matchedBonePairs)
