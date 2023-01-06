@@ -51,8 +51,6 @@ namespace Galaktikos.ArmatureMerge
 
             if (GUILayout.Button("Merge"))
             {
-                Debug.Log(GetPathToArmature(MergeArmatureRoot, MainArmatureRoot));
-
                 // Input Validation
                 if (MainArmatureRoot == null || MergeArmatureRoot == null)
                 {
