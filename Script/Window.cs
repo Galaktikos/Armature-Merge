@@ -79,14 +79,18 @@ namespace Galaktikos.ArmatureMerge
 				Dictionary<Transform, Transform> matchedBonePairs = new Dictionary<Transform, Transform>();
 				List<Transform> unmatchedBones = new List<Transform>();
 
+				// Remap root bones
+				foreach (SkinnedMeshRenderer mergeMesh in MergeMeshes)
+				{
+					Transform foundRoot = FindMergeMeshRoot(mergeMesh);
+					mergeMesh.rootBone = foundRoot == null ? MainArmatureRoot : foundRoot;
+				}
+
 				// Remap bones
 				uint remapped = 0;
 				uint unmatched = 0;
 				foreach (SkinnedMeshRenderer mergeMesh in MergeMeshes)
 				{
-					Transform foundRoot = FindMergeMeshRoot(mergeMesh);
-					mergeMesh.rootBone = foundRoot == null ? MainArmatureRoot : foundRoot;
-
 					Transform[] mergeBones = new Transform[mergeMesh.bones.Length];
 					for (int boneIndex = 0; boneIndex < mergeBones.Length; boneIndex++)
 					{
